@@ -1,3 +1,55 @@
+typedef struct {
+    float forwardTicks;     //in quad encoder ticks
+    float strafeTicks;      //in quad encoder ticks
+    float rotationAngle;    //in gyro angle delta
+    float liftPosition;     //in potentiometer value
+    float clawPosition;     //in potentiometer value
+
+} waypoint;
+
+PIDObject frontLeftDrivePID;
+PIDObject frontRightDrivePID;
+PIDObject backLeftDrivePID;
+PIDObject backRightDrivePID;
+PIDObject rotationPID;
+PIDObject liftPID;
+PIDObject clawPID;
+
+void initializeDrivePID() {
+    intializePID(frontLeftDrivePID,0,0,0);
+    intializePID(frontRightDrivePID,0,0,0);
+    intializePID(backLeftDrivePID,0,0,0);
+    intializePID(backRightDrivePID,0,0,0);
+}
+
+void updateDrivePID(int frontLeft,int frontRight, int backLeft, int backRight) {
+    float dT = 0;//maybe store the last time in the PIDObjecth    
+    computePID(frontLeftDrivePID,SensorValue[DRIVE_LEFT_FRONT_ENCODER]-frontLeft,dT);
+    computePID(frontRightDrivePID,SensorValue[DRIVE_RIGHT_FRONT_ENCODER]-frontRight,dT);
+    computePID(backLeftDrivePID,SensorValue[DRIVE_LEFT_BACK_ENCODER]-backLeft,dT);
+    computePID(backRightDrivePID,SensorValue[DRIVE_RIGHT_BACK_ENCODER]-backRight,dT);
+    setDriveSpeed(frontLeftDrivePID->output,frontRightDrivePID->output,backLeftDrivePID->output,backRightDrivePID->output)l 
+}
+
+void initializeLiftPID() {
+    initializePID(liftPID,0,0,0);
+}
+
+void updateLiftPID (int position) {
+    float dT = 0;
+    computePID(liftPID,SensorValue[LIFT_POTENTIOMETER]-position,dT);
+    setLiftSpeed(liftPID->output);
+}
+
+void initializeClawPID() {
+    initalizePID(clawPID,0,0,0); 
+}
+
+void updateClawPID (int position) {
+    float dT = 0;
+    computePID(clawPID,SensorValue[CLAW_POTENTIOMETER]-position,dT);
+    setClawSpeed(clawPID->output);
+}
 
 void runAutonomousLoop() {
 	//def 
