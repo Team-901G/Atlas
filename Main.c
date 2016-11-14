@@ -1,13 +1,13 @@
 #pragma config(I2C_Usage, I2C1, i2cSensors)
 #pragma config(Sensor, in1,    LIFT_POT,       sensorPotentiometer)
-#pragma config(Sensor, I2C_1,  LEFT_MOTOR_ENCODER,               sensorQuadEncoderOnI2CPort,    , AutoAssign )
-#pragma config(Sensor, I2C_2,  RIGHT_MOTOR_ENCODER,               sensorQuadEncoderOnI2CPort,    , AutoAssign )
+#pragma config(Sensor, I2C_1,  LEFT_MOTOR_ENCODER, sensorQuadEncoderOnI2CPort,    , AutoAssign )
+#pragma config(Sensor, I2C_2,  RIGHT_MOTOR_ENCODER, sensorQuadEncoderOnI2CPort,    , AutoAssign )
 #pragma config(Motor,  port1,           FRONT_RIGHT_DRIVE_MOTOR, tmotorVex393HighSpeed_HBridge, openLoop)
 #pragma config(Motor,  port2,           BACK_RIGHT_DRIVE_MOTOR, tmotorVex393HighSpeed_MC29, openLoop, encoderPort, I2C_2)
-#pragma config(Motor,  port3,           L_BOT_MOTOR,   tmotorServoContinuousRotation, openLoop)
-#pragma config(Motor,  port4,           L_TOP_MOTOR,   tmotorServoContinuousRotation, openLoop)
-#pragma config(Motor,  port5,           R_BOT_MOTOR,   tmotorServoContinuousRotation, openLoop)
-#pragma config(Motor,  port6,           R_TOP_MOTOR,   tmotorServoContinuousRotation, openLoop)
+#pragma config(Motor,  port3,           L_BOT_MOTOR,   tmotorVex393_MC29, openLoop)
+#pragma config(Motor,  port4,           L_TOP_MOTOR,   tmotorVex393_MC29, openLoop)
+#pragma config(Motor,  port5,           R_BOT_MOTOR,   tmotorVex393_MC29, openLoop)
+#pragma config(Motor,  port6,           R_TOP_MOTOR,   tmotorVex393_MC29, openLoop)
 #pragma config(Motor,  port7,           LEFT_CLAW_MOTOR, tmotorVex393_MC29, openLoop)
 #pragma config(Motor,  port8,           RIGHT_CLAW_MOTOR, tmotorVex393_MC29, openLoop)
 #pragma config(Motor,  port9,           BACK_LEFT_DRIVE_MOTOR, tmotorVex393HighSpeed_MC29, openLoop, encoderPort, I2C_1)
@@ -31,6 +31,8 @@ void pre_auton()
   // running between Autonomous and Driver controlled modes. You will need to
   // manage all user created tasks if set to false.
   bStopTasksBetweenModes = true;
+  SensorValue[LEFT_MOTOR_ENCODER] = 0;
+  SensorValue[RIGHT_MOTOR_ENCODER] = 0;
 
 	// Set bDisplayCompetitionStatusOnLcd to false if you don't want the LCD
 	// used by the competition include file, for example, you might want
