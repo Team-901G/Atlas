@@ -1,13 +1,17 @@
 #pragma config(I2C_Usage, I2C1, i2cSensors)
 #pragma config(Sensor, in1,    LIFT_POT,       sensorPotentiometer)
+#pragma config(Sensor, dgtl1,  DRIVE_LEFT_FRONT_QUAD, sensorQuadEncoder)
+#pragma config(Sensor, dgtl3,  DRIVE_LEFT_BACK_QUAD, sensorQuadEncoder)
+#pragma config(Sensor, dgtl5,  DRIVE_RIGHT_FRONT_QUAD, sensorQuadEncoder)
+#pragma config(Sensor, dgtl7,  DRIVE_RIGHT_BACK_MOTOR, sensorQuadEncoder)
 #pragma config(Sensor, I2C_1,  DRIVE_LEFT_MOTOR_ENCODER, sensorQuadEncoderOnI2CPort,    , AutoAssign )
 #pragma config(Sensor, I2C_2,  DRIVE_RIGHT_MOTOR_ENCODER, sensorQuadEncoderOnI2CPort,    , AutoAssign )
-#pragma config(Motor,  port1,           DRIVE_FRONT_RIGHT_MOTOR, tmotorVex393HighSpeed_HBridge, openLoop)
-#pragma config(Motor,  port2,           DRIVE_BACK_RIGHT_MOTOR, tmotorVex393HighSpeed_MC29, openLoop, encoderPort, I2C_2)
-#pragma config(Motor,  port3,           LIFT_LEFT_BOT_MOTOR,   tmotorVex393_MC29, openLoop)
-#pragma config(Motor,  port4,           LIFT_LEFT_TOP_MOTOR,   tmotorVex393_MC29, openLoop)
-#pragma config(Motor,  port5,           LIFT_RIGHT_BOT_MOTOR,   tmotorVex393_MC29, openLoop)
-#pragma config(Motor,  port6,           LIFT_RIGHT_TOP_MOTOR,   tmotorVex393_MC29, openLoop)
+#pragma config(Motor,  port1,           DRIVE_RIGHT_FRONT_MOTOR, tmotorVex393HighSpeed_HBridge, openLoop)
+#pragma config(Motor,  port2,           DRIVE_RIGHT_BACK_MOTOR, tmotorVex393HighSpeed_MC29, openLoop, encoderPort, I2C_2)
+#pragma config(Motor,  port3,           LIFT_LEFT_BOT_MOTOR, tmotorVex393_MC29, openLoop)
+#pragma config(Motor,  port4,           LIFT_LEFT_TOP_MOTOR, tmotorVex393_MC29, openLoop)
+#pragma config(Motor,  port5,           LIFT_RIGHT_BOT_MOTOR, tmotorVex393_MC29, openLoop)
+#pragma config(Motor,  port6,           LIFT_RIGHT_TOP_MOTOR, tmotorVex393_MC29, openLoop)
 #pragma config(Motor,  port7,           CLAW_LEFT_MOTOR, tmotorVex393_MC29, openLoop)
 #pragma config(Motor,  port8,           CLAW_RIGHT_MOTOR, tmotorVex393_MC29, openLoop)
 #pragma config(Motor,  port9,           DRIVE_LEFT_BACK_MOTOR, tmotorVex393HighSpeed_MC29, openLoop, encoderPort, I2C_1)
@@ -56,5 +60,5 @@ task autonomous()
 
 task usercontrol()
 {
-	runOpcontrolLoop();  
+	runOpcontrolLoop();
 }

@@ -23,12 +23,12 @@ void initializeDrivePID() {
 }
 
 void updateDrivePID(int frontLeft,int frontRight, int backLeft, int backRight) {
-    float dT = 0;//maybe store the last time in the PIDObjecth    
-    computePID(frontLeftDrivePID,SensorValue[DRIVE_LEFT_FRONT_ENCODER]-frontLeft,dT);
-    computePID(frontRightDrivePID,SensorValue[DRIVE_RIGHT_FRONT_ENCODER]-frontRight,dT);
-    computePID(backLeftDrivePID,SensorValue[DRIVE_LEFT_BACK_ENCODER]-backLeft,dT);
-    computePID(backRightDrivePID,SensorValue[DRIVE_RIGHT_BACK_ENCODER]-backRight,dT);
-    setDriveSpeed(frontLeftDrivePID->output,frontRightDrivePID->output,backLeftDrivePID->output,backRightDrivePID->output)l 
+    float dT = 0;//maybe store the last time in the PIDObjecth
+    computePID(frontLeftDrivePID,SensorValue[DRIVE_LEFT_FRONT_QUAD]-frontLeft,dT);
+    computePID(frontRightDrivePID,SensorValue[DRIVE_RIGHT_FRONT_QUAD]-frontRight,dT);
+    computePID(backLeftDrivePID,SensorValue[DRIVE_LEFT_BACK_QUAD]-backLeft,dT);
+    computePID(backRightDrivePID,SensorValue[DRIVE_RIGHT_BACK_QUAD]-backRight,dT);
+    setDriveSpeed(frontLeftDrivePID->output,frontRightDrivePID->output,backLeftDrivePID->output,backRightDrivePID->output)l
 }
 
 void initializeLiftPID() {
@@ -42,7 +42,7 @@ void updateLiftPID (int position) {
 }
 
 void initializeClawPID() {
-    initalizePID(clawPID,0,0,0); 
+    initalizePID(clawPID,0,0,0);
 }
 
 void updateClawPID (int position) {
@@ -52,33 +52,33 @@ void updateClawPID (int position) {
 }
 
 void runAutonomousLoop() {
-	//def 
+	//def
 	moveForward(100,70)
 	//turn left
 	//move forward
 	//turn right
 	//lift arm
 	//open claw
-	//move forward 
-	//move back 
+	//move forward
+	//move back
 	//lower arm
 	//turn right
 	//move forward
-	//turn left 
+	//turn left
 	//lift arm
 	//move forward
 	//move backward
 	//lower arm
 	//turn right
 	//move forward
-	//turn left  
+	//turn left
 	//lift arm
 	//move forward
 	//move backward
 	//lower arm
-	
-	
-	
-	
-	
+
+
+
+
+
 }

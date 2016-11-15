@@ -1,32 +1,32 @@
 int liftState = 0;
-    
+
 //Left motor ticks increase if it is moving forward
 //Right motor ticks increases if it is moving backwards
 
 void setDriveSpeed(int frontLeft, int frontRight, int backLeft, int backRight) {
-    motor[FRONT_RIGHT_DRIVE_MOTOR] = - frontRight;
-    motor[BACK_RIGHT_DRIVE_MOTOR] = - backRight;
-    motor[FRONT_LEFT_DRIVE_MOTOR] = frontLeft;
-    motor[BACK_LEFT_DRIVE_MOTOR] = backLeft;
+    motor[DRIVE_RIGHT_FRONT_MOTOR] = - frontRight;
+    motor[DRIVE_RIGHT_BACK_MOTOR] = - backRight;
+    motor[DRIVE_LEFT_FRONT_MOTOR] = frontLeft;
+    motor[DRIVE_LEFT_BACK_MOTOR] = backLeft;
 }
 
 void setLiftSpeed(int speed) {
-    motor[L_BOT_MOTOR] = -speed;
-    motor[L_TOP_MOTOR] = -speed;
-    motor[R_BOT_MOTOR] = speed;
-    motor[R_TOP_MOTOR] = speed;
+    motor[LIFT_LEFT_BOT_MOTOR] = -speed;
+    motor[LIFT_LEFT_TOP_MOTOR] = -speed;
+    motor[LIFT_RIGHT_BOT_MOTOR] = speed;
+    motor[LIFT_RIGHT_TOP_MOTOR] = speed;
 }
 
 void setClawSpeed(int speed) {
-    motor[LEFT_CLAW_MOTOR] = speed;
-    motor[RIGHT_CLAW_MOTOR] = -speed;
+    motor[CLAW_LEFT_MOTOR] = speed;
+    motor[CLAW_RIGHT_MOTOR] = -speed;
 }
 
 //takes in desired state, returns actual state
 int runLiftControlLoop(int state) {
     int liftPotValue = SensorValue[LIFT_POT];
 
-   
+
     if(state == 0) {
             if (liftPotValue > LIFT_POTENTIOMETER_VALUE_LOW){
                 setLiftSpeed(LIFT_DOWN_SPEED);
