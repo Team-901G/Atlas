@@ -1,3 +1,9 @@
+//TODO: ADD WAYPOINT ARRAY ITERATOR / RUNNER FUNCTION
+//ADD WAYPOINT ARRAY
+//ADD CONSTANTS FOR EACH PID IN CONSTANTS.C
+//IMPLEMENT ROTATION PID SO IT USES DRIVE PID
+//TUNE PID CONSTANTS
+//IMPLEMENT ROUTINE
 typedef struct {
     float forwardTicks;     //in quad encoder ticks
     float strafeTicks;      //in quad encoder ticks
@@ -7,6 +13,8 @@ typedef struct {
 
 } waypoint;
 
+waypoint waypointsList[10];
+
 PIDObject frontLeftDrivePID;
 PIDObject frontRightDrivePID;
 PIDObject backLeftDrivePID;
@@ -14,6 +22,11 @@ PIDObject backRightDrivePID;
 PIDObject rotationPID;
 PIDObject liftPID;
 PIDObject clawPID;
+
+void initializeWaypointArray() {
+//drive code routine goes here
+
+}
 
 void initializeDrivePID() {
     intializePID(frontLeftDrivePID,0,0,0);
@@ -29,6 +42,10 @@ void updateDrivePID(int frontLeft,int frontRight, int backLeft, int backRight) {
     computePID(backLeftDrivePID,SensorValue[DRIVE_LEFT_BACK_QUAD]-backLeft,dT);
     computePID(backRightDrivePID,SensorValue[DRIVE_RIGHT_BACK_QUAD]-backRight,dT);
     setDriveSpeed(frontLeftDrivePID->output,frontRightDrivePID->output,backLeftDrivePID->output,backRightDrivePID->output)l
+}
+
+void initializeDrivePID() {
+   initializePID(rotationPID,0,0,0); 
 }
 
 void initializeLiftPID() {
@@ -50,6 +67,8 @@ void updateClawPID (int position) {
     computePID(clawPID,SensorValue[CLAW_POTENTIOMETER]-position,dT);
     setClawSpeed(clawPID->output);
 }
+
+
 
 void runAutonomousLoop() {
 	//def
