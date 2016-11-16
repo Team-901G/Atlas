@@ -39,21 +39,21 @@ int runLiftControlLoop(int state) {
 
 
     if(state == 0) {
-            if (liftPotValue > LIFT_POTENTIOMETER_VALUE_LOW){
+            if (liftPotValue > LIFT_POT_VALUE_LOW){
                 setLiftSpeed(LIFT_DOWN_SPEED);
                 return 1;
             }
-            else if (liftPotValue <= LIFT_POTENTIOMETER_VALUE_LOW){
+            else if (liftPotValue <= LIFT_POT_VALUE_LOW){
                 setLiftSpeed(LIFT_DOWN_HOLDING_SPEED);
                 return 0;
             }
         }
         else if (state==1) {
-            if (liftPotValue < LIFT_POTENTIOMETER_VALUE_HIGH) {
+            if (liftPotValue < LIFT_POT_VALUE_HIGH) {
                 setLiftSpeed(LIFT_UP_SPEED);
                 return 0;
             }
-            else if (liftPotValue >= LIFT_POTENTIOMETER_VALUE_HIGH) {
+            else if (liftPotValue >= LIFT_POT_VALUE_HIGH) {
                 setLiftSpeed(LIFT_UP_HOLDING_SPEED);
                 return 1;
             }
