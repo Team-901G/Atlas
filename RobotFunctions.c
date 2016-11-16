@@ -2,6 +2,17 @@ int liftState = 0;
 
 //Left motor ticks increase if it is moving forward
 //Right motor ticks increases if it is moving backwards
+void initializeSensors() {
+	SensorValue[DRIVE_LEFT_MOTOR_ENCODER] = 0;
+  SensorValue[DRIVE_RIGHT_MOTOR_ENCODER] = 0;
+  SensorValue[DRIVE_LEFT_BACK_QUAD] = 0;
+  SensorValue[DRIVE_RIGHT_BACK_QUAD] = 0;
+  SensorValue[DRIVE_LEFT_FRONT_QUAD] = 0;
+  SensorValue[DRIVE_RIGHT_FRONT_QUAD] = 0;
+  SensorValue[DRIVE_GYRO] = 0;
+  wait1Msec(1000);
+}
+
 
 void setDriveSpeed(int frontLeft, int frontRight, int backLeft, int backRight) {
     motor[DRIVE_RIGHT_FRONT_MOTOR] = - frontRight;
@@ -24,7 +35,7 @@ void setClawSpeed(int speed) {
 
 //takes in desired state, returns actual state
 int runLiftControlLoop(int state) {
-    int liftPotValue = SensorValue[LIFT_POT];
+    int liftPotValue = SensorValue[LIFT_POTENTIOMETER];
 
 
     if(state == 0) {
