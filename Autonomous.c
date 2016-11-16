@@ -38,7 +38,7 @@ float linearSpeedCurve(float remaining, float threshold) {
 		return AUTON_DRIVE_MAX_SPEED;
 		}
 	else {
-		return (remaining / threshold)* AUTON_DRIVE_MAX_SPEED
+		return (remaining / threshold)* AUTON_DRIVE_MAX_SPEED;
 	}
 }
 
@@ -49,22 +49,22 @@ void initializeDrivePID(float kp, float ki, float kd) {
 //should work for forwards, backwards, left turn, and right turn movement
 //this only control driving straight -- right now the linearSpeedCurve acts as a P(no I no D) controller
 //might want to change linearSpeedCurve into a PID controller
-void updateDrivePID(int targetLeftDist, int targetRightDist, int leftSpeed, int rightSpeed) {
+void updateDrivePID(int leftSpeed, int rightSpeed) {
     float dT = 0.01;//maybe store the last time in the PIDObjecth
 
-    float frontLeftTicksRemaining = targetLeftDist- -SensorValue[DRIVE_LEFT_FRONT_QUAD];
-    float backLeftTicksRemaining = targetLeftDist - SensorValue[DRIVE_LEFT_BACK_QUAD];
+    float frontLeftTicksRemaining = - -SensorValue[DRIVE_LEFT_FRONT_QUAD];
+    float backLeftTicksRemaining = - SensorValue[DRIVE_LEFT_BACK_QUAD];
     float leftAvgTicksRemaining = (frontLeftTicksRemaining + backLeftTicksRemaining)/2;
 
-    float frontRightTicksRemaining = targetRightDist - SensorValue[DRIVE_RIGHT_FRONT_QUAD];
-    float backRightTicksRemaining = targetRightDist- -SensorValue[DRIVE_RIGHT_BACK_QUAD];
+    float frontRightTicksRemaining =  - SensorValue[DRIVE_RIGHT_FRONT_QUAD];
+    float backRightTicksRemaining = - -SensorValue[DRIVE_RIGHT_BACK_QUAD];
     float rightAvgTicksRemaining = (frontRightTicksRemaining + backRightTicksRemaining)/2;
 
     float tickDiff = abs(rightAvgTicksRemaining) - abs(leftAvgTicksRemaining);
     computePID(&differentialDrivePID,tickDiff,dT);
 
     //left side should compensate if right side is going faster (kP is positive)
-    int leftOutputSpeed = (sign(leftAvgTicksRemaining)*((int)(differentialDrivePID.output))+leftSpeed;
+    int leftOutputSpeed = sign(leftAvgTicksRemaining)*((int)(differentialDrivePID.output))+leftSpeed;
     int rightOutputSpeed = rightSpeed;
 
     setDriveSpeed(leftOutputSpeed,rightOutputSpeed,leftOutputSpeed,rightOutputSpeed);
@@ -106,22 +106,22 @@ void runWaypoint(waypoint * wp) {
 		isComplete = true;
 
 		//make sure these errors are in the right direction!!!
-		float driveForwardsErrorL = (wp->forwardTicks) - SensorValue[DRIVE_LEFT_BACK_QUAD]
-		float driveForwardsErrorR = (wp->forwardTicks) --SensorValue[DRIVE_RIGHT_BACK_QUAD]
+		float driveForwardsErrorL = (wp->forwardTicks) -  SensorValue[DRIVE_LEFT_BACK_QUAD];
+		float driveForwardsErrorR = (wp->forwardTicks) - -SensorValue[DRIVE_RIGHT_BACK_QUAD];
 		float rotationError = (wp->rotationAngle) - SensorValue[DRIVE_GYRO];
 
 		//Move forwards or backwards until error is below threshold
-		if(abs(driveForwardsErrorL) > DRIVE_FOWARD_ERROR_THRESH || abs(driveForwardsErrorR) > DRIVE_FORWARD_ERROR_THRESH) {
+		if(abs(driveForwardsErrorL) > DRIVE_FORWARDS_ERROR_THRESH || abs(driveForwardsErrorR) > DRIVE_FORWARDS_ERROR_THRESH) {
 			isComplete = false;
 			float speed = linearSpeedCurve((driveForwardsErrorL+driveForwardsErrorR)/2,AUTON_FORWARDS_DECEL_DIST);
 			updateDrivePID(speed,speed);
 		}
 
 		//Rotate left or right until the error is below threshold
-		if(abs(rotationError) > DRIVE_ROTATION_ERROR_THRESH) {
+		else if(abs(rotationError) > DRIVE_ROTATION_ERROR_THRESH) {
 			isComplete = false;
 			float speed = linearSpeedCurve(rotationError,AUTON_ROTATION_DECEL_DIST);
-			updateDrivePID(
+			updateDrivePID(speed,-speed);
 		}
 
 		wait1Msec(20);
