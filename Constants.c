@@ -16,7 +16,7 @@ int LIFT_UP_HOLDING_SPEED = 50;
 
 //CLAW CONTROL CONSTANTS
 int CLAW_OPENED_POT_VALUE = 3500; //totally open -- 180 degrees
-int CLAW_CLOSED_POT_VALUE= 1970;
+int CLAW_CLOSED_POT_VALUE= 1730;
 
 //AUTONOMOUS CONTROL CONSTANTS
 float DIFF_DRIVE_PID_KP = -0.8;//positive means veer left (comp for right shift)
@@ -35,9 +35,9 @@ float LIFT_PID_KP = 0.1;//error is usuallt around 1500 -> 30 default speed
 float LIFT_PID_KI = 0.0002; //1500 error ticks accumulated per sec -> +7.5 speed after 1 seconds
 float LIFT_PID_KD = 0;
 
-float CLAW_PID_KP = 0.1;//0.1;
-float CLAW_PID_KI = 0;//0.1;
-float CLAW_PID_KD = 0;
+float CLAW_PID_KP = 0.05;//0.1;
+float CLAW_PID_KI = 0.0003;//0.1;
+float CLAW_PID_KD = 0.5;
 
 float DRIVE_FORWARD_ERROR_THRESH = 10;//50 //about 5cm
 float DRIVE_ROTATION_ERROR_THRESH = 50;//50 //5 degrees, might be too small

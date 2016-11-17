@@ -3,12 +3,6 @@
 //this is assuming right rotation is positive on the gyro
 //also assuming that claw opens with positive value to setClawSpeed, and pot gets bigger with claw more open
 
-//TODO: check rotation on gyro, put in claw pot values
-//TODO: see stuff above
-//TODO: work out 1. drive differential PID values 2. claw PID values 3. lift PID values
-	//if these don't show promise, switch to the other control type
-//TODO: make routine work
-
 typedef struct {
     float forwardTicks;     //in quad encoder ticks delta
     float strafeTicks;      //in quad encoder ticks delta
@@ -44,18 +38,6 @@ float speedMax(float val, float max) {
 }
 //---PID FUNCTIONS---//
 
-/*float linearSpeedCurve(float remaining, float threshold) {
-	if (fabs(remaining) > threshold) {
-		return sign(remaining)*AUTON_DRIVE_MAX_SPEED;
-		}
-	else {
-		return (remaining / threshold)* AUTON_DRIVE_MAX_SPEED;
-	}
-}*/
-
-//should work for forwards, backwards, left turn, and right turn movement
-//this only control driving straight -- right now the linearSpeedCurve acts as a P(no I no D) controller
-//might want to change linearSpeedCurve into a PID controller
 void updateDiffDrivePID(int leftSpeed, int rightSpeed) {
     float dT = AUTON_LOOP_DELAY;
 
@@ -111,7 +93,7 @@ void runWaypoint(waypoint * wp) {
 
 	while (!isComplete) {
 
-		isComplete = true;
+		//isComplete = true;
 
 		//make sure these errors are in the right direction!!!
 		float driveForwardsErrorL = (wp->forwardTicks) -  SensorValue[DRIVE_LEFT_BACK_QUAD];
@@ -120,19 +102,18 @@ void runWaypoint(waypoint * wp) {
 		float rotationError = (wp->rotationAngle) - SensorValue[DRIVE_GYRO];
 		float liftError = map((wp->liftPosition),0,100,LIFT_POT_VALUE_MIN,LIFT_POT_VALUE_MAX)-SensorValue[LIFT_POTENTIOMETER];
 		float clawError = map((wp->clawPosition),0,100,CLAW_CLOSED_POT_VALUE,CLAW_OPENED_POT_VALUE)-SensorValue[CLAW_POTENTIOMETER];
-		writeDebugStreamLine("WAYPOINT ERRORS ARE DRIVE: %f ROT: %f LIFT: %f CLAW: %f",driveForwardsErrorL,rotationError,liftError,clawError);
+		writeDebugStreamLine("WP ERRORS: DR:%d RT:%d L:%d CL: %d",(int)(driveForwardsErrorL),(int)(rotationError),(int)(liftError),(int)(clawError));
 		datalogAddValue(0,driveForwardsError);
 		datalogAddValue(1,rotationError);
 		datalogAddValue(2,liftError);
 		datalogAddValue(3,clawError);
 
-
 		//Move forwards or backwards until error is below threshold
-		if(!driveComplete && (fabs(driveForwardsErrorL) > DRIVE_FORWARDS_ERROR_THRESH || fabs(driveForwardsErrorR) > DRIVE_FORWARDS_ERROR_THRESH)) {
+		if(!driveComplete && (fabs(driveForwardsErrorL) > DRIVE_FORWARD_ERROR_THRESH || fabs(driveForwardsErrorR) > DRIVE_FORWARD_ERROR_THRESH)) {
 			isComplete = false;
 			float speed = updateDrivePID(driveForwardsError);
 			speed = speedMax(speed,AUTON_DRIVE_MAX_SPEED);
-			writeDebugStream("RUNNING DRIVE FORWARDS AT SPEED %f",speed);
+			writeDebugStream("RUNNING DRIVE FORWARDS AT SPEED %d",(int)speed);
 			updateDiffDrivePID(speed,speed);
 		}
 		//Rotate left or right until the error is below threshold
@@ -141,16 +122,20 @@ void runWaypoint(waypoint * wp) {
 			isComplete = false;
 			float speed = updateRotationPID(rotationError);
 			speed = speedMax(speed,AUTON_DRIVE_MAX_SPEED);
-			writeDebugStreamLine("TURNING DRIVE AT SPEED %f",speed);
+			writeDebugStreamLine("TURNING DRIVE AT SPEED %d",(int)speed);
 			updateDiffDrivePID(speed,-speed);
 		}
 
-		setLiftSpeed(updateLiftPID(liftError));
+		float liftSpeed = updateLiftPID(liftError);
+		setLiftSpeed(liftSpeed);
+		writeDebugStreamLine("RUNNING LIFT AT SPEED %d",(int)liftSpeed);
 		if(fabs(liftError) > LIFT_ERROR_THRESH) {
 			isComplete = false;
 		}
 
-		setClawSpeed(updateClawPID(clawError));
+		float clawSpeed = updateClawPID(clawError);
+		setClawSpeed(clawSpeed);
+		writeDebugStreamLine("RUNNING CLAW AT SPEED %d",(int)clawSpeed);
 		if(fabs(clawError) > CLAW_ERROR_THRESH) {
 			isComplete = false;
 		}
@@ -164,7 +149,7 @@ void initializeDefaultWaypoint(waypoint* wp) {
 	wp->forwardTicks = 0;
 	wp->strafeTicks = 0;
 	wp->rotationAngle = 0;
-	wp->liftPosition = 10;
+	wp->liftPosition = 6;
 	wp->clawPosition = 10;
 
 }
@@ -177,15 +162,16 @@ void initializeWaypointArray() {
 	}
 	//waypointsList[0].forwardTicks = 2200;
 	//waypointsList[0].rotationAngle = 0;
-	waypointsList[0].clawPosition = 50;
-	waypointsList[1].clawPosition = 90;
-	waypointsList[2].clawPosition = 10;
+	waypointsList[0].clawPosition = 11;
+	//waypointsList[1].clawPosition = 90;
+	//waypointsList[2].clawPosition = 10;
+	//aypointsList[0].liftPosition = 90;
 }
 
 void runAutonomousLoop() {
 	initializeWaypointArray();
 	initializePID(&diffDrivePID,DIFF_DRIVE_PID_KP,DIFF_DRIVE_PID_KI,DIFF_DRIVE_PID_KD);
-	initializePID(&drivePID,DRIVE_FORWARDS_PID_KP,DRIVE_FORWARDS_PID_KI,DRIVE_FORWARDS_PID_KD);
+	initializePID(&drivePID,DRIVE_FORWARD_PID_KP,DRIVE_FORWARD_PID_KI,DRIVE_FORWARD_PID_KD);
 	initializePID(&rotationPID,DRIVE_ROTATION_PID_KP,DRIVE_ROTATION_PID_KI,DRIVE_ROTATION_PID_KD);
 	initializePID(&clawPID,CLAW_PID_KP,CLAW_PID_KI,CLAW_PID_KD);
 	initializePID(&liftPID,LIFT_PID_KP,LIFT_PID_KI,LIFT_PID_KD);
@@ -194,29 +180,60 @@ void runAutonomousLoop() {
 		runWaypoint(&waypointsList[i]);
 	}
 
-	//Example Autonomous Routine
-	//move forwards
-	//turn left
-	//move forward
-	//turn right
-	//lift arm
-	//open claw
-	//move forward
-	//move back
-	//lower arm
-	//turn right
-	//move forward
-	//turn left
-	//lift arm
-	//move forward
-	//move backward
-	//lower arm
-	//turn right
-	//move forward
-	//turn left
-	//lift arm
-	//move forward
-	//move backward
-	//lower arm
+}
 
+void runOpcontrolLoop() {
+    initializeSensors();
+    initializePID(&liftPID,LIFT_PID_KP,LIFT_PID_KI,LIFT_PID_KD);
+    int liftTarget = 11;
+
+    while (true)
+    {
+				//Run lift using PID:
+    		float liftError = map(liftTarget,0,100,LIFT_POT_VALUE_MIN,LIFT_POT_VALUE_MAX)-SensorValue[LIFT_POTENTIOMETER];
+    		float liftSpeed = updateLiftPID(liftError);
+				setLiftSpeed(liftSpeed);
+
+        if (vexRT[Btn7U] == 1) {
+        		//setLiftSpeed(LIFT_HIGH_SPEED);
+        }
+        else if (vexRT[Btn7D]==1) {
+        		//setLiftSpeed(-LIFT_HIGH_SPEED);
+        }
+        else if (vexRT[Btn7L] == 1) {
+            setLiftSpeed(0);
+        }
+        else if (vexRT[Btn7R]==1) {
+            setLiftSpeed(0);
+        }
+        else {
+            //runLiftControlLoop(liftState);
+        }
+        if(vexRT[Btn5U] == 1){
+           liftTarget = 90;
+        }
+        else if (vexRT[Btn5D] == 1){
+           liftTarget = 11;
+        }
+
+        //Claw Control
+        if(vexRT[Btn6U] == 1){
+            setClawSpeed(CLAW_OPEN_SPEED);
+        }
+        else if(vexRT[Btn6D] == 1){
+            setClawSpeed(CLAW_CLOSE_SPEED);
+        }
+        else{
+            setClawSpeed(0);
+        }
+
+        //Drive Control
+        int frontRightMotorSpeed = - -((vexRT[Ch3] - vexRT[Ch4]) - vexRT[Ch1]);
+        int backRightMotorSpeed = - -((vexRT[Ch3] - vexRT[Ch4]) + vexRT[Ch1]);
+        int frontLeftMotorSpeed = ((vexRT[Ch3] + vexRT[Ch4]) + vexRT[Ch1]);
+        int backLeftMotorSpeed = ((vexRT[Ch3] + vexRT[Ch4]) - vexRT[Ch1]);
+
+				setDriveSpeed(frontLeftMotorSpeed,frontRightMotorSpeed,backLeftMotorSpeed,backRightMotorSpeed);
+
+    }
 }
