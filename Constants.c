@@ -23,23 +23,23 @@ float DIFF_DRIVE_PID_KP = -0.8;//positive means veer left (comp for right shift)
 float DIFF_DRIVE_PID_KI = 0;
 float DIFF_DRIVE_PID_KD = 0;
 
-float DRIVE_FORWARDS_PID_KP = 0;
-float DRIVE_FORWARDS_PID_KI = 0;
-float DRIVE_FORWARDS_PID_KD = 0;
+float DRIVE_FORWARD_PID_KP = 0.6;
+float DRIVE_FORWARD_PID_KI = 0; //probably no I here
+float DRIVE_FORWARD_PID_KD = 0;
 
-float DRIVE_ROTATION_PID_KP = 0;
-float DRIVE_ROTATION_PID_KI = 0;
+float DRIVE_ROTATION_PID_KP = 0.6;
+float DRIVE_ROTATION_PID_KI = 0; //probably no I here
 float DRIVE_ROTATION_PID_KD = 0;
 
-float LIFT_PID_KP = 0;
-float LIFT_PID_KI = 0;
+float LIFT_PID_KP = 0.1;//error is usuallt around 1500 -> 30 default speed
+float LIFT_PID_KI = 0.0002; //1500 error ticks accumulated per sec -> +7.5 speed after 1 seconds
 float LIFT_PID_KD = 0;
 
 float CLAW_PID_KP = 0.1;//0.1;
 float CLAW_PID_KI = 0;//0.1;
 float CLAW_PID_KD = 0;
 
-float DRIVE_FORWARDS_ERROR_THRESH = 10;//50 //about 5cm
+float DRIVE_FORWARD_ERROR_THRESH = 10;//50 //about 5cm
 float DRIVE_ROTATION_ERROR_THRESH = 50;//50 //5 degrees, might be too small
 float CLAW_ERROR_THRESH = 100;//100 // in potentiometer ticks
 float LIFT_ERROR_THRESH = 10; //50 in potentiometer ticks
