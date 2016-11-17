@@ -15,31 +15,39 @@ int LIFT_DOWN_HOLDING_SPEED = 0;
 int LIFT_UP_HOLDING_SPEED = 50;
 
 //CLAW CONTROL CONSTANTS
-int CLAW_OPENED_POT_VALUE = 500; //totally open -- 180 degrees
-int CLAW_CLOSED_POT_VALUE= 100;
+int CLAW_OPENED_POT_VALUE = 3500; //totally open -- 180 degrees
+int CLAW_CLOSED_POT_VALUE= 1970;
 
 //AUTONOMOUS CONTROL CONSTANTS
-float DRIVE_PID_KP = 0.1;
-float DRIVE_PID_KI = 0;
-float DRIVE_PID_KD = 0;
+float DIFF_DRIVE_PID_KP = -0.8;//positive means veer left (comp for right shift)
+float DIFF_DRIVE_PID_KI = 0;
+float DIFF_DRIVE_PID_KD = 0;
+
+float DRIVE_FORWARDS_PID_KP = 0;
+float DRIVE_FORWARDS_PID_KI = 0;
+float DRIVE_FORWARDS_PID_KD = 0;
+
+float DRIVE_ROTATION_PID_KP = 0;
+float DRIVE_ROTATION_PID_KI = 0;
+float DRIVE_ROTATION_PID_KD = 0;
 
 float LIFT_PID_KP = 0;
 float LIFT_PID_KI = 0;
 float LIFT_PID_KD = 0;
 
-float CLAW_PID_KP = 0;
-float CLAW_PID_KI = 0;
+float CLAW_PID_KP = 0.1;//0.1;
+float CLAW_PID_KI = 0;//0.1;
 float CLAW_PID_KD = 0;
 
-float DRIVE_FORWARDS_ERROR_THRESH = 50; //about 5cm
-float DRIVE_ROTATION_ERROR_THRESH = 50; //5 degrees, might be too small
-float CLAW_ERROR_THRESH = 100; // in potentiometer ticks
-float LIFT_ERROR_THRESH = 50; // in potentiometer ticks
+float DRIVE_FORWARDS_ERROR_THRESH = 10;//50 //about 5cm
+float DRIVE_ROTATION_ERROR_THRESH = 50;//50 //5 degrees, might be too small
+float CLAW_ERROR_THRESH = 100;//100 // in potentiometer ticks
+float LIFT_ERROR_THRESH = 10; //50 in potentiometer ticks
 
 int AUTON_LOOP_DELAY = 20;
 int AUTON_DRIVE_MAX_SPEED = 110;
-int AUTON_FORWARDS_DECEL_DIST = 200; //when to start const decel
-int AUTON_ROTATION_DECEL_DIST = 300; //300 = 30 degrees (3600 is full rev)
+//int AUTON_FORWARDS_DECEL_DIST = 300; //when to start const decel
+//int AUTON_ROTATION_DECEL_DIST = 200; //300 = 30 degrees (3600 is full rev)
 
 //60 cm is 647 651 677 675 avg 663
 //1 meter is 1104 ticks

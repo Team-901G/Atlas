@@ -6,7 +6,7 @@ typedef struct {
 } PIDObject ;
 
 
-void intializePID(PIDObject* pid, float kP,float kI,float kD) {
+void initializePID(PIDObject* pid, float kP,float kI,float kD) {
         pid -> kP = kP;
         pid -> kI = kI;
         pid -> kD = kD;
