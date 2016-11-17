@@ -9,7 +9,7 @@ typedef struct {
     float rotationAngle;    //in gyro angle delta
     float liftPosition;     //from 0 to 100, 0 is down
     float clawPosition;     //from 0 to 100, 0 is closed
-
+		float waitTime; 				//wait time after completion
 } waypoint;
 
 
@@ -83,15 +83,27 @@ float updateClawPID (float error) {
     return clawPID.output;
 }
 
+float clawSpeedCurve(float error) {
+    float dT = AUTON_LOOP_DELAY;
+    if(abs(error)<20) {
+      return sign(error) * CLAW_HOLDING_SPEED;
+    }
+    else{
+      return sign(error) * CLAW_MOVING_SPEED;
+    }
+
+}
+
 //---Autonomous Loop Methods---//
 
 void runWaypoint(waypoint * wp) {
 	bool isComplete = false;
 	bool driveComplete = false;
+  int numTicksComplete = 0;
 	initializeSensors();
 	writeDebugStreamLine("RUNNING WAYPOINT WITH VALS FOW:%f, STRF:%f, LIFT:%f, ROT:%f, CLAW:%f",wp->forwardTicks,wp->strafeTicks,wp->rotationAngle,wp->liftPosition,wp->clawPosition);
 
-	while (!isComplete) {
+	while (!isComplete && numTicksComplete < AUTON_WAYPOINT_NOERROR_TICKS) {
 
 		//isComplete = true;
 
@@ -100,13 +112,19 @@ void runWaypoint(waypoint * wp) {
 		float driveForwardsErrorR = (wp->forwardTicks) - -SensorValue[DRIVE_RIGHT_BACK_QUAD];
 		float driveForwardsError = (driveForwardsErrorL+driveForwardsErrorR)/2;
 		float rotationError = (wp->rotationAngle) - SensorValue[DRIVE_GYRO];
-		float liftError = map((wp->liftPosition),0,100,LIFT_POT_VALUE_MIN,LIFT_POT_VALUE_MAX)-SensorValue[LIFT_POTENTIOMETER];
-		float clawError = map((wp->clawPosition),0,100,CLAW_CLOSED_POT_VALUE,CLAW_OPENED_POT_VALUE)-SensorValue[CLAW_POTENTIOMETER];
+		float liftError = (wp->liftPosition)-map(SensorValue[LIFT_POTENTIOMETER],LIFT_POT_VALUE_MIN,LIFT_POT_VALUE_MAX,0,100);
+		float clawError = (wp->clawPosition)-map(SensorValue[CLAW_POTENTIOMETER],CLAW_CLOSED_POT_VALUE,CLAW_OPENED_POT_VALUE,0,100);
 		writeDebugStreamLine("WP ERRORS: DR:%d RT:%d L:%d CL: %d",(int)(driveForwardsErrorL),(int)(rotationError),(int)(liftError),(int)(clawError));
 		datalogAddValue(0,driveForwardsError);
 		datalogAddValue(1,rotationError);
 		datalogAddValue(2,liftError);
 		datalogAddValue(3,clawError);
+    datalogAddValue(4,diffDrivePID.error);
+
+    datalogAddValue(5,drivePID.derivative);
+    datalogAddValue(6,rotationPID.derivative);
+    datalogAddValue(7,liftPID.derivative);
+    datalogAddValue(8,diffDrivePID.derivative);
 
 		//Move forwards or backwards until error is below threshold
 		if(!driveComplete && (fabs(driveForwardsErrorL) > DRIVE_FORWARD_ERROR_THRESH || fabs(driveForwardsErrorR) > DRIVE_FORWARD_ERROR_THRESH)) {
@@ -133,15 +151,30 @@ void runWaypoint(waypoint * wp) {
 			isComplete = false;
 		}
 
-		float clawSpeed = updateClawPID(clawError);
-		setClawSpeed(clawSpeed);
+    float clawSpeed = 0;
+    if (wp->clawPosition > CLAW_PID_CONTROL_POS_THRESH) {
+		    clawSpeed = updateClawPID(clawError);
+		    setClawSpeed(clawSpeed);
+      }
+    else {
+        clawSpeed = clawSpeedCurve(clawError);
+        setClawSpeed(clawSpeed);
+    }
 		writeDebugStreamLine("RUNNING CLAW AT SPEED %d",(int)clawSpeed);
 		if(fabs(clawError) > CLAW_ERROR_THRESH) {
 			isComplete = false;
 		}
 
+    if(isComplete == false) {
+      numTicksComplete = 0;
+    }
+    else {
+      numTicksComplete ++;
+    }
+
 		wait1Msec(AUTON_LOOP_DELAY);
 	}
+	wait1Msec(wp->waitTime);
 }
 
 //TODO: add defaults into constants file
@@ -151,7 +184,7 @@ void initializeDefaultWaypoint(waypoint* wp) {
 	wp->rotationAngle = 0;
 	wp->liftPosition = 6;
 	wp->clawPosition = 10;
-
+  wp->waitTime = 0;
 }
 
 void initializeWaypointArray() {
