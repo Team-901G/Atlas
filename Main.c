@@ -26,8 +26,7 @@
 #include "Constants.c"
 #include "PID.c"
 #include "RobotFunctions.c"
-#include "Opcontrol.c" //for whatever reason, this needs to be above the below pragma and includes
-#include "Autonomous.c"
+#include "Control.c"
 
 // Select Download method as "competition"
 #pragma competitionControl(Competition)
