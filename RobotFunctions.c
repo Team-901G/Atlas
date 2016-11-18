@@ -37,7 +37,6 @@ void setClawSpeed(int speed) {
 int runLiftControlLoop(int state) {
     int liftPotValue = SensorValue[LIFT_POTENTIOMETER];
 
-
     if(state == 0) {
             if (liftPotValue > LIFT_POT_VALUE_LOW){
                 setLiftSpeed(LIFT_DOWN_SPEED);

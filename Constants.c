@@ -5,14 +5,14 @@ int CLAW_OPEN_SPEED = 128;
 int CLAW_CLOSE_SPEED = -70;
 
 //LIFT CONTROL CONSTANTS
-int LIFT_UP_SPEED = 128;
+int LIFT_UP_SPEED = 100;
 int LIFT_DOWN_SPEED = -60;
 int LIFT_POT_VALUE_MAX = 2000;
 int LIFT_POT_VALUE_MIN = 366;
 int LIFT_POT_VALUE_HIGH= LIFT_POT_VALUE_MAX - 150;
 int LIFT_POT_VALUE_LOW = LIFT_POT_VALUE_MIN + 100;
 int LIFT_DOWN_HOLDING_SPEED = 0;
-int LIFT_UP_HOLDING_SPEED = 50;
+int LIFT_UP_HOLDING_SPEED = 40;
 
 //CLAW CONTROL CONSTANTS
 int CLAW_OPENED_POT_VALUE = 3500; //totally open -- 180 degrees
@@ -31,9 +31,13 @@ float DRIVE_ROTATION_PID_KP = 0.6;
 float DRIVE_ROTATION_PID_KI = 0; //probably no I here
 float DRIVE_ROTATION_PID_KD = 0;
 
-float LIFT_PID_KP = ((20003266)/100)* 0.1;//error is usuallt around 1500 -> 30 default speed
-float LIFT_PID_KI = ((2000-366)/100)* 0.0002; //1500 error ticks accumulated per sec -> +7.5 speed after 1 seconds
+float LIFT_PID_KP = 2;//1.2;//((2000-366)/100)* 0.1;//error is usuallt around 1500 -> 30 default speed
+float LIFT_PID_KI = 0;//0.000035;//0.00001;//((2000-366)/100)* 0.0002; //1500 error ticks accumulated per sec -> +7.5 speed after 1 seconds
 float LIFT_PID_KD = 0;
+
+float OP_LIFT_PID_KP = 0.1;
+float OP_LIFT_PID_KI = 0.0002;
+float OP_LIFT_PID_KD = 0;
 
 float CLAW_PID_KP = 0.05;//0.1;
 float CLAW_PID_KI = 0;//0.1;
@@ -41,17 +45,17 @@ float CLAW_PID_KD = 0.5;
 
 float CLAW_PID_CONTROL_POS_THRESH = 20; //if above this, use pid
 float CLAW_HOLDING_SPEED_ERROR_THRESH = 20; //at what point to apply holding speed
-float CLAW_HOLDING_SPEED = 60;
+float CLAW_HOLDING_SPEED = -60;
 float CLAW_MOVING_SPEED = 100;
 
-float DRIVE_FORWARD_ERROR_THRESH = 10;//50 //about 5cm
+float DRIVE_FORWARD_ERROR_THRESH = 20;//50 //about 5cm
 float DRIVE_ROTATION_ERROR_THRESH = 50;//50 //5 degrees, might be too small
-float CLAW_ERROR_THRESH = 10;//100 // in potentiometer ticks
-float LIFT_ERROR_THRESH = 10; //50 in potentiometer ticks
+float CLAW_ERROR_THRESH = 20;//100 // in potentiometer ticks
+float LIFT_ERROR_THRESH = 30; //50 in potentiometer ticks
 
 int AUTON_LOOP_DELAY = 30;
 int AUTON_DRIVE_MAX_SPEED = 110;
-int AUTON_WAYPOINT_NOERROR_TICKS = 100; //how long the waypoint must be with no error before proceeding to next wp
+int AUTON_WAYPOINT_NOERROR_TICKS = 50; //how long the waypoint must be with no error before proceeding to next wp
 //int AUTON_FORWARDS_DECEL_DIST = 300; //when to start const decel
 //int AUTON_ROTATION_DECEL_DIST = 200; //300 = 30 degrees (3600 is full rev)
 

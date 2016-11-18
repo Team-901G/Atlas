@@ -13,7 +13,7 @@ typedef struct {
 } waypoint;
 
 
-waypoint waypointsList[10];
+waypoint waypointsList[25];
 int NUM_WAYPOINTS = 10;
 
 PIDObject diffDrivePID;
@@ -83,13 +83,16 @@ float updateClawPID (float error) {
     return clawPID.output;
 }
 
-float clawSpeedCurve(float error) {
-    float dT = AUTON_LOOP_DELAY;
-    if(abs(error)<20) {
-      return sign(error) * CLAW_HOLDING_SPEED;
+float clawSpeedCurve(float pos) {
+    //float dT = AUTON_LOOP_DELAY;
+    if (pos ==0){
+    	return 0;
+    	}
+		else if(pos<20) {
+      return  -60;
     }
     else{
-      return sign(error) * CLAW_MOVING_SPEED;
+      return 40;
     }
 
 }
@@ -97,15 +100,15 @@ float clawSpeedCurve(float error) {
 //---Autonomous Loop Methods---//
 
 void runWaypoint(waypoint * wp) {
-	bool isComplete = false;
+	bool isComplete = true;
 	bool driveComplete = false;
   int numTicksComplete = 0;
 	initializeSensors();
-	writeDebugStreamLine("RUNNING WAYPOINT WITH VALS FOW:%f, STRF:%f, LIFT:%f, ROT:%f, CLAW:%f",wp->forwardTicks,wp->strafeTicks,wp->rotationAngle,wp->liftPosition,wp->clawPosition);
+	writeDebugStreamLine("RUNNING WAYPOINT WITH VALS FOW:%f, STRF:%f, LIFT:%f, ROT:%f, CLAW:%f",wp->forwardTicks,wp->strafeTicks,wp->liftPosition,wp->rotationAngle,wp->clawPosition);
 
-	while (!isComplete && numTicksComplete < AUTON_WAYPOINT_NOERROR_TICKS) {
+	while (!isComplete || numTicksComplete < AUTON_WAYPOINT_NOERROR_TICKS) {
 
-		//isComplete = true;
+		isComplete = true;
 
 		//make sure these errors are in the right direction!!!
 		float driveForwardsErrorL = (wp->forwardTicks) -  SensorValue[DRIVE_LEFT_BACK_QUAD];
@@ -123,8 +126,8 @@ void runWaypoint(waypoint * wp) {
 
     datalogAddValue(5,drivePID.derivative);
     datalogAddValue(6,rotationPID.derivative);
-    datalogAddValue(7,liftPID.derivative);
-    datalogAddValue(8,diffDrivePID.derivative);
+    //datalogAddValue(7,liftPID.derivative);
+    //datalogAddValue(8,diffDrivePID.derivative);
 
 		//Move forwards or backwards until error is below threshold
 		if(!driveComplete && (fabs(driveForwardsErrorL) > DRIVE_FORWARD_ERROR_THRESH || fabs(driveForwardsErrorR) > DRIVE_FORWARD_ERROR_THRESH)) {
@@ -132,7 +135,7 @@ void runWaypoint(waypoint * wp) {
 			float speed = updateDrivePID(driveForwardsError);
 			speed = speedMax(speed,AUTON_DRIVE_MAX_SPEED);
 			//writeDebugStream("RUNNING DRIVE FORWARDS AT SPEED %d",(int)speed);
-      datalogAddValue(9,(int)speed)
+      //datalogAddValue(9,(int)speed)
       updateDiffDrivePID(speed,speed);
 		}
 		//Rotate left or right until the error is below threshold
@@ -142,30 +145,32 @@ void runWaypoint(waypoint * wp) {
 			float speed = updateRotationPID(rotationError);
 			speed = speedMax(speed,AUTON_DRIVE_MAX_SPEED);
 			//writeDebugStreamLine("TURNING DRIVE AT SPEED %d",(int)speed);
-      datalogAddValue(10,(int)speed);
+      //datalogAddValue(10,(int)speed);
       updateDiffDrivePID(speed,-speed);
 		}
+		else {driveComplete = true};
 
-		float liftSpeed = updateLiftPID(liftError);
-		setLiftSpeed(liftSpeed);
+		//float liftSpeed = updateLiftPID(liftError);
+		//setLiftSpeed(liftSpeed);
+		runLiftControlLoop(wp->liftPosition);
 		//writeDebugStreamLine("RUNNING LIFT AT SPEED %d",(int)liftSpeed);
-    datalogAddValue(11,(int)liftSpeed)
-    if(fabs(liftError) > LIFT_ERROR_THRESH) {
-			isComplete = false;
-		}
+    //datalogAddValue(11,(int)liftSpeed)
+    //if(fabs(liftError) > LIFT_ERROR_THRESH) {
+		//	isComplete = false;
+		//}
 
     float clawSpeed = 0;
-    if (wp->clawPosition > CLAW_PID_CONTROL_POS_THRESH) {
+   /* if (wp->clawPosition > CLAW_PID_CONTROL_POS_THRESH) {
 		    clawSpeed = updateClawPID(clawError);
 		    setClawSpeed(clawSpeed);
       }
-    else {
-        clawSpeed = clawSpeedCurve(clawError);
+    else {*/
+        clawSpeed = clawSpeedCurve(wp->clawPosition);
         setClawSpeed(clawSpeed);
-    }
+    //}
 		//writeDebugStreamLine("RUNNING CLAW AT SPEED %d",(int)clawSpeed);
-    datalogAddValue(12,(int)clawSpeed);
-    if(fabs(clawError) > CLAW_ERROR_THRESH) {
+    //datalogAddValue(12,(int)clawSpeed);
+    if(fabs(clawError) > CLAW_ERROR_THRESH && wp->clawPosition !=0) {
 			isComplete = false;
 		}
 
@@ -186,7 +191,7 @@ void initializeDefaultWaypoint(waypoint* wp) {
 	wp->forwardTicks = 0;
 	wp->strafeTicks = 0;
 	wp->rotationAngle = 0;
-	wp->liftPosition = 6;
+	wp->liftPosition = 0;
 	wp->clawPosition = 10;
   wp->waitTime = 0;
 }
@@ -199,27 +204,33 @@ void initializeWaypointArray() {
 	}
 
   //TODO: can create and reuuse waypoints that do specific things by making a function that sets them to that
-  waypointsList[0].liftPosition = 30;
+  waypointsList[0].liftPosition = 1;
+  waypointsList[0].clawPosition = 0;
 
+	for(int i =1; i< 5; i+=5) {
   //First Cube
-  waypointsList[1].liftPosition = 11;
-  waypointsList[1].clawPosition = 90;
-  waypointsList[1].waitTime = 3000;
+ 		waypointsList[i].liftPosition = 0;
+  	waypointsList[i].clawPosition = 90;
+  	waypointsList[i].waitTime = 3000;//3000;
 
-  waypointsList[2].clawPosition = 10;
+  	waypointsList[i+1].liftPosition = 0;
+  	waypointsList[i+1].clawPosition = 10;
 
-  waypointsList[3].liftPosition=90;
-  waypointsList[3].forwardTicks = 500;
+		waypointsList[i+2].clawPosition = 10;
+  	waypointsList[i+2].liftPosition=1;
+  	waypointsList[i+2].forwardTicks = 900;
 
-  waypointsList[4].liftPosition = 90;
-  waypointsList[4].clawPosition = 90;
-  waypointsList[4].waitTime = 1000;
+  	waypointsList[i+3].liftPosition = 1;
+  	waypointsList[i+3].clawPosition = 60;
+  	waypointsList[i+3].waitTime = 1000;
 
-  waypointsList[5].liftPosition = 90;
-  waypointsList[5].forwardTicks = -500;
-  waypointsList[5].clawPosition = 90;
+  	waypointsList[i+4].liftPosition = 1;
+  	waypointsList[i+4].forwardTicks = -1000;
+  	waypointsList[i+4].clawPosition = 0;
+  	waypointsList[i+4].waitTime = 1000;
+}
 
-  //Second Cube
+  /*//Second Cube
   waypointsList[6].liftPosition = 11;
   waypointsList[6].clawPosition = 90;
   waypointsList[6].waitTime = 3000;
@@ -277,7 +288,7 @@ void initializeWaypointArray() {
   waypointsList[21].forwardTicks = 200;
 
   waypointsList[22].clawPosition = 90;
-  waypointsList[22].waitTime = 1000;
+  waypointsList[22].waitTime = 1000;*/
 }
 
 void runAutonomousLoop() {
@@ -302,15 +313,15 @@ void runOpcontrolLoop() {
     while (true)
     {
 				//Run lift using PID:
-    		float liftError = map(liftTarget,0,100,LIFT_POT_VALUE_MIN,LIFT_POT_VALUE_MAX)-SensorValue[LIFT_POTENTIOMETER];
-    		float liftSpeed = updateLiftPID(liftError);
-				setLiftSpeed(liftSpeed);
+    		float liftError = liftTarget-map(SensorValue[LIFT_POTENTIOMETER],LIFT_POT_VALUE_MIN,LIFT_POT_VALUE_MAX,0,100);
+    		//float liftSpeed = updateLiftPID(liftError);
+				datalogAddValue(0,liftError);
 
         if (vexRT[Btn7U] == 1) {
-        		//setLiftSpeed(LIFT_HIGH_SPEED);
+        		setLiftSpeed(LIFT_HIGH_SPEED);
         }
         else if (vexRT[Btn7D]==1) {
-        		//setLiftSpeed(-LIFT_HIGH_SPEED);
+        		setLiftSpeed(-LIFT_HIGH_SPEED);
         }
         else if (vexRT[Btn7L] == 1) {
             setLiftSpeed(0);
@@ -319,13 +330,16 @@ void runOpcontrolLoop() {
             setLiftSpeed(0);
         }
         else {
-            //runLiftControlLoop(liftState);
+          //setLiftSpeed(liftSpeed);
+        	runLiftControlLoop(liftState);
         }
         if(vexRT[Btn5U] == 1){
-           liftTarget = 90;
+           	liftState = 1;
+        		liftTarget = 90;
         }
         else if (vexRT[Btn5D] == 1){
-           liftTarget = 11;
+           	liftState = 0;
+        		liftTarget = 5;
         }
 
         //Claw Control
@@ -340,12 +354,16 @@ void runOpcontrolLoop() {
         }
 
         //Drive Control
-        int frontRightMotorSpeed = - -((vexRT[Ch3] - vexRT[Ch4]) - vexRT[Ch1]);
-        int backRightMotorSpeed = - -((vexRT[Ch3] - vexRT[Ch4]) + vexRT[Ch1]);
+        int frontRightMotorSpeed =  -((vexRT[Ch3] - vexRT[Ch4]) - vexRT[Ch1]);
+        int backRightMotorSpeed = -((vexRT[Ch3] - vexRT[Ch4]) + vexRT[Ch1]);
         int frontLeftMotorSpeed = ((vexRT[Ch3] + vexRT[Ch4]) + vexRT[Ch1]);
         int backLeftMotorSpeed = ((vexRT[Ch3] + vexRT[Ch4]) - vexRT[Ch1]);
 
-				setDriveSpeed(frontLeftMotorSpeed,frontRightMotorSpeed,backLeftMotorSpeed,backRightMotorSpeed);
+         motor[DRIVE_RIGHT_FRONT_MOTOR] = frontRightMotorSpeed;
+         motor[DRIVE_RIGHT_BACK_MOTOR] = backRightMotorSpeed;
+         motor[DRIVE_LEFT_FRONT_MOTOR] = frontLeftMotorSpeed;
+         motor[DRIVE_LEFT_BACK_MOTOR] = backLeftMotorSpeed;
+			//	setDriveSpeed(frontLeftMotorSpeed,frontRightMotorSpeed,backLeftMotorSpeed,backRightMotorSpeed);
 
     }
 }
