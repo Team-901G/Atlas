@@ -19,7 +19,7 @@ int CLAW_OPENED_POT_VALUE = 3500; //totally open -- 180 degrees
 int CLAW_CLOSED_POT_VALUE= 1730;
 
 //AUTONOMOUS CONTROL CONSTANTS
-float DIFF_DRIVE_PID_KP = -0.8;//positive means veer left (comp for right shift)
+float DIFF_DRIVE_PID_KP = 0;//-0.8;//positive means veer left (comp for right shift)
 float DIFF_DRIVE_PID_KI = 0;
 float DIFF_DRIVE_PID_KD = 0;
 
@@ -39,14 +39,11 @@ float OP_LIFT_PID_KP = 0.1;
 float OP_LIFT_PID_KI = 0.0002;
 float OP_LIFT_PID_KD = 0;
 
-float CLAW_PID_KP = 0.05;//0.1;
+float CLAW_PID_KP = 1.5;//0.1;
 float CLAW_PID_KI = 0;//0.1;
-float CLAW_PID_KD = 0.5;
+float CLAW_PID_KD = 0;//0.5;
 
 float CLAW_PID_CONTROL_POS_THRESH = 20; //if above this, use pid
-float CLAW_HOLDING_SPEED_ERROR_THRESH = 20; //at what point to apply holding speed
-float CLAW_HOLDING_SPEED = -60;
-float CLAW_MOVING_SPEED = 100;
 
 float DRIVE_FORWARD_ERROR_THRESH = 20;//50 //about 5cm
 float DRIVE_ROTATION_ERROR_THRESH = 50;//50 //5 degrees, might be too small

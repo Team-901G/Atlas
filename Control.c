@@ -94,6 +94,7 @@ float clawSpeedCurve(float pos) {
     else{
       return 40;
     }
+}
 
 //---Autonomous Loop Methods---//
 
@@ -115,6 +116,7 @@ void runWaypoint(waypoint * wp) {
 		float rotationError = (wp->rotationAngle) - SensorValue[DRIVE_GYRO];
 		float liftError = (wp->liftPosition)-map(SensorValue[LIFT_POTENTIOMETER],LIFT_POT_VALUE_MIN,LIFT_POT_VALUE_MAX,0,100);
 		float clawError = (wp->clawPosition)-map(SensorValue[CLAW_POTENTIOMETER],CLAW_CLOSED_POT_VALUE,CLAW_OPENED_POT_VALUE,0,100);
+		//writeDebugStreamLine("%f %f %f %f %f",SensorValue[CLAW_POTENTIOMETER],CLAW_CLOSED_POT_VALUE,CLAW_OPENED_POT_VALUE,map(SensorValue[CLAW_POTENTIOMETER],CLAW_CLOSED_POT_VALUE,CLAW_OPENED_POT_VALUE,0,100))
 		//writeDebugStreamLine("WP ERRORS: DR:%d RT:%d L:%d CL: %d",(int)(driveForwardsErrorL),(int)(rotationError),(int)(liftError),(int)(clawError));
 		datalogAddValue(0,driveForwardsError);
 		datalogAddValue(1,rotationError);
@@ -122,8 +124,8 @@ void runWaypoint(waypoint * wp) {
 		datalogAddValue(3,clawError);
     datalogAddValue(4,diffDrivePID.error);
 
-    datalogAddValue(5,drivePID.derivative);
-    datalogAddValue(6,rotationPID.derivative);
+    //datalogAddValue(5,drivePID.derivative);
+    //datalogAddValue(6,rotationPID.derivative);
     //datalogAddValue(7,liftPID.derivative);
     //datalogAddValue(8,diffDrivePID.derivative);
 
@@ -142,32 +144,47 @@ void runWaypoint(waypoint * wp) {
 			isComplete = false;
 			float speed = updateRotationPID(rotationError);
 			speed = speedMax(speed,AUTON_DRIVE_MAX_SPEED);
-			//writeDebugStreamLine("TURNING DRIVE AT SPEED %d",(int)speed);
       //datalogAddValue(10,(int)speed);
       updateDiffDrivePID(speed,-speed);
 		}
 		else {driveComplete = true};
 
-		float liftSpeed = updateLiftPID(liftError);
-		setLiftSpeed(liftSpeed);
+		//float liftSpeed = updateLiftPID(liftError);
+		//setLiftSpeed(liftSpeed);
 		//runLiftControlLoop(wp->liftPosition);
-		//writeDebugStreamLine("RUNNING LIFT AT SPEED %d",(int)liftSpeed);
-    //datalogAddValue(11,(int)liftSpeed)
+    if(wp->liftPosition>50) {
+    	runLiftControlLoop(1);}
+    else {
+    	runLiftControlLoop(0);
+    }
+
+		//datalogAddValue(11,(int)liftSpeed)
     if(fabs(liftError) > LIFT_ERROR_THRESH) {
 			isComplete = false;
 		}
 
     float clawSpeed = 0;
-    if (wp->clawPosition > CLAW_PID_CONTROL_POS_THRESH) {
-		    clawSpeed = updateClawPID(clawError);
-		    setClawSpeed(clawSpeed);
-      }
-    else {
-        clawSpeed = clawSpeedCurve(wp->clawPosition);
-        setClawSpeed(clawSpeed);
-    }
-		//writeDebugStreamLine("RUNNING CLAW AT SPEED %d",(int)clawSpeed);
+
+		if(wp->clawPosition > CLAW_PID_CONTROL_POS_THRESH) {
+				clawSpeed = updateClawPID(clawError);
+				writeDebugStreamLine("error %f speed %f",clawError,clawSpeed);
+				setClawSpeed(clawSpeed);
+		}
+		else if (wp->clawPosition < CLAW_PID_CONTROL_POS_THRESH) {
+				setClawSpeed(CLAW_CLOSE_SPEED);
+		}
+    /*
+    if (wp->clawPosition == 1) {
+			setClawSpeed(CLAW_OPEN_SPEED)
+		}
+		else if (wp->clawPosition == -1) {
+			setClawSpeed(CLAW_CLOSE_SPEED);
+		}
+		else {
+			setClawSpeed(0);
+  	}*/
     //datalogAddValue(12,(int)clawSpeed);
+
     if(fabs(clawError) > CLAW_ERROR_THRESH && wp->clawPosition !=0) {
 			isComplete = false;
 		}
@@ -190,7 +207,7 @@ void initializeDefaultWaypoint(waypoint* wp) {
 	wp->strafeTicks = 0;
 	wp->rotationAngle = 0;
 	wp->liftPosition = 0;
-	wp->clawPosition = 10;
+	wp->clawPosition = 0;
   wp->waitTime = 0;
 }
 
@@ -202,93 +219,36 @@ void initializeWaypointArray() {
 	}
 
   //TODO: can create and reuuse waypoints that do specific things by making a function that sets them to that
-  waypointsList[0].liftPosition = 1;
+  waypointsList[0].liftPosition = 90;
   waypointsList[0].clawPosition = 0;
 
-	for(int i =1; i< 5; i+=5) {
+	//for(int i =1; i< 5; i+=5) {
   //First Cube
- 		waypointsList[i].liftPosition = 0;
-  	waypointsList[i].clawPosition = 90;
-  	waypointsList[i].waitTime = 3000;//3000;
+ 		i=1;
+  	waypointsList[1].liftPosition = 10;
+  	waypointsList[1].clawPosition = 10;
+  	//waypointsList[1].waitTime = 3000;//3000;
 
-  	waypointsList[i+1].liftPosition = 0;
-  	waypointsList[i+1].clawPosition = 10;
 
-		waypointsList[i+2].clawPosition = 10;
-  	waypointsList[i+2].liftPosition=1;
-  	waypointsList[i+2].forwardTicks = 900;
+		waypointsList[2].clawPosition = 10;
+  	waypointsList[2].liftPosition=10;
+  	waypointsList[2].forwardTicks = 500;
+  	waypointsList[2].waitTime = 1000;
 
-  	waypointsList[i+3].liftPosition = 1;
-  	waypointsList[i+3].clawPosition = 60;
-  	waypointsList[i+3].waitTime = 1000;
+  	waypointsList[3].liftPosition = 10;
+  	waypointsList[3].clawPosition = 60;
+  	waypointsList[3].rotationAngle = 90;
+  	//waypointsList[3].waitTime = 1000;
 
-  	waypointsList[i+4].liftPosition = 1;
-  	waypointsList[i+4].forwardTicks = -1000;
-  	waypointsList[i+4].clawPosition = 0;
-  	waypointsList[i+4].waitTime = 1000;
+  	waypointsList[4].forwardTicks = 100;
+  	waypointsList[4].clawPosition = 10;
+
+  	waypointsList[5].liftPosition = 90;
+ 		waypointsList[5].rotationAngle = -90;
+
+//}
+
 }
-
-  /*//Second Cube
-  waypointsList[6].liftPosition = 11;
-  waypointsList[6].clawPosition = 90;
-  waypointsList[6].waitTime = 3000;
-
-  waypointsList[7].clawPosition = 10;
-
-  waypointsList[8].liftPosition=90;
-  waypointsList[8].forwardTicks = 500;
-
-  waypointsList[9].liftPosition = 90;
-  waypointsList[9].clawPosition = 90;
-  waypointsList[9].waitTime = 1000;
-
-  //Returning and TURNING
-
-  waypointsList[10].liftPosition = 90;
-  waypointsList[10].rotationAngle = 180;
-  waypointsList[10].clawPosition = 90;
-
-  waypointsList[11].liftPosition = 11;
-  waypointsList[11].clawPosition = 90;
-  waypointsList[11].waitTime = 3000;
-
-  //Grabbing stars and dumping over fence
-  waypointsList[12].clawPosition=11;
-
-  waypointsList[13].liftPosition = 90;
-
-  waypointsList[14].liftPosition = 90;
-  waypointsList[14].rotationAngle = 180;
-
-  waypointsList[15].clawPosition = 90;
-  waypointsList[15].liftPosition = 90;
-  waypointsList[15].waitTime = 1000;
-
-  //turning 90. move fow, and grabbing Cube, and moving forward, and turning right
-  waypointsList[16].rotationAngle = 90;
-  waypointsList[16].clawPosition = 90;
-
-  waypointsList[17].liftPosition = 11;
-  waypointsList[17].clawPosition = 90;
-
-  waypointsList[18].forwardTicks = 200;
-  waypointsList[18].clawPosition = 90;
-
-  waypointsList[19].clawPosition = 11;
-
-  waypointsList[20].liftPosition = 90;
-  waypointsList[20].clawPosition = 11;
-  waypointsList[20].forwardTicks = 200;
-  waypointsList[20].rotationAngle = -90;
-
-  //move forwards and drop Cube
-  waypointsList[21].liftPosition = 90;
-  waypointsList[21].forwardTicks = 200;
-
-  waypointsList[22].clawPosition = 90;
-  waypointsList[22].waitTime = 1000;*/
-}
-
 void runAutonomousLoop() {
 	initializeWaypointArray();
 	initializePID(&diffDrivePID,DIFF_DRIVE_PID_KP,DIFF_DRIVE_PID_KI,DIFF_DRIVE_PID_KD);
