@@ -19,7 +19,7 @@ int CLAW_OPENED_POT_VALUE = 3500; //totally open -- 180 degrees
 int CLAW_CLOSED_POT_VALUE= 1730;
 
 //AUTONOMOUS CONTROL CONSTANTS
-float DIFF_DRIVE_PID_KP = 0;//-0.8;//positive means veer left (comp for right shift)
+float DIFF_DRIVE_PID_KP = -0.8;//positive means veer left (comp for right shift)
 float DIFF_DRIVE_PID_KI = 0;
 float DIFF_DRIVE_PID_KD = 0;
 

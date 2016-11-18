@@ -237,14 +237,14 @@ void initializeWaypointArray() {
 
   	waypointsList[3].liftPosition = 10;
   	waypointsList[3].clawPosition = 60;
-  	waypointsList[3].rotationAngle = 90;
+  	waypointsList[3].rotationAngle = 900;
   	//waypointsList[3].waitTime = 1000;
 
   	waypointsList[4].forwardTicks = 100;
   	waypointsList[4].clawPosition = 10;
 
   	waypointsList[5].liftPosition = 90;
- 		waypointsList[5].rotationAngle = -90;
+ 		waypointsList[5].rotationAngle = -900;
 
 //}
 
