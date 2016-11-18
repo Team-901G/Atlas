@@ -31,8 +31,8 @@ float DRIVE_ROTATION_PID_KP = 0.6;
 float DRIVE_ROTATION_PID_KI = 0; //probably no I here
 float DRIVE_ROTATION_PID_KD = 0;
 
-float LIFT_PID_KP = 2;//1.2;//((2000-366)/100)* 0.1;//error is usuallt around 1500 -> 30 default speed
-float LIFT_PID_KI = 0;//0.000035;//0.00001;//((2000-366)/100)* 0.0002; //1500 error ticks accumulated per sec -> +7.5 speed after 1 seconds
+float LIFT_PID_KP = 1.2;//((2000-366)/100)* 0.1;//error is usuallt around 1500 -> 30 default speed
+float LIFT_PID_KI = 0.000035;//0.00001;//((2000-366)/100)* 0.0002; //1500 error ticks accumulated per sec -> +7.5 speed after 1 seconds
 float LIFT_PID_KD = 0;
 
 float OP_LIFT_PID_KP = 0.1;
@@ -56,8 +56,6 @@ float LIFT_ERROR_THRESH = 30; //50 in potentiometer ticks
 int AUTON_LOOP_DELAY = 30;
 int AUTON_DRIVE_MAX_SPEED = 110;
 int AUTON_WAYPOINT_NOERROR_TICKS = 50; //how long the waypoint must be with no error before proceeding to next wp
-//int AUTON_FORWARDS_DECEL_DIST = 300; //when to start const decel
-//int AUTON_ROTATION_DECEL_DIST = 200; //300 = 30 degrees (3600 is full rev)
 
 //60 cm is 647 651 677 675 avg 663
 //1 meter is 1104 ticks

@@ -95,8 +95,6 @@ float clawSpeedCurve(float pos) {
       return 40;
     }
 
-}
-
 //---Autonomous Loop Methods---//
 
 void runWaypoint(waypoint * wp) {
