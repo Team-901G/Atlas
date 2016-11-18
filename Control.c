@@ -150,24 +150,24 @@ void runWaypoint(waypoint * wp) {
 		}
 		else {driveComplete = true};
 
-		//float liftSpeed = updateLiftPID(liftError);
-		//setLiftSpeed(liftSpeed);
-		runLiftControlLoop(wp->liftPosition);
+		float liftSpeed = updateLiftPID(liftError);
+		setLiftSpeed(liftSpeed);
+		//runLiftControlLoop(wp->liftPosition);
 		//writeDebugStreamLine("RUNNING LIFT AT SPEED %d",(int)liftSpeed);
     //datalogAddValue(11,(int)liftSpeed)
-    //if(fabs(liftError) > LIFT_ERROR_THRESH) {
-		//	isComplete = false;
-		//}
+    if(fabs(liftError) > LIFT_ERROR_THRESH) {
+			isComplete = false;
+		}
 
     float clawSpeed = 0;
-   /* if (wp->clawPosition > CLAW_PID_CONTROL_POS_THRESH) {
+    if (wp->clawPosition > CLAW_PID_CONTROL_POS_THRESH) {
 		    clawSpeed = updateClawPID(clawError);
 		    setClawSpeed(clawSpeed);
       }
-    else {*/
+    else {
         clawSpeed = clawSpeedCurve(wp->clawPosition);
         setClawSpeed(clawSpeed);
-    //}
+    }
 		//writeDebugStreamLine("RUNNING CLAW AT SPEED %d",(int)clawSpeed);
     //datalogAddValue(12,(int)clawSpeed);
     if(fabs(clawError) > CLAW_ERROR_THRESH && wp->clawPosition !=0) {
