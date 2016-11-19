@@ -222,7 +222,7 @@ void initializeWaypointArray() {
   //reminder: for cllaw switch to state
 	waypointsList[0].liftPosition = 90;
   waypointsList[0].clawPosition = 0;
-	/waypointsList[0].waitTime = 2000;
+	waypointsList[0].waitTime = 2000;
 
 	waypointsList[1].liftPosition = 10;
 	waypointsList[1].waitTime = 10000;
@@ -287,33 +287,35 @@ void runOpcontrolLoop() {
     {
 				//Run lift using PID:
     		float liftError = liftTarget-map(SensorValue[LIFT_POTENTIOMETER],LIFT_POT_VALUE_MIN,LIFT_POT_VALUE_MAX,0,100);
-    		//float liftSpeed = updateLiftPID(liftError);
+    		float liftSpeed = updateLiftPID(liftError);
 				datalogAddValue(0,liftError);
 
-        if (vexRT[Btn7U] == 1) {
+        /*if (vexRT[Btn7U] == 1) {
         		setLiftSpeed(LIFT_HIGH_SPEED);
         }
         else if (vexRT[Btn7D]==1) {
         		setLiftSpeed(-LIFT_HIGH_SPEED);
-        }
-        else if (vexRT[Btn7L] == 1) {
+        }*/
+        if (vexRT[Btn7L] == 1) {
             setLiftSpeed(0);
         }
         else if (vexRT[Btn7R]==1) {
             setLiftSpeed(0);
         }
         else {
-          //setLiftSpeed(liftSpeed);
-        	runLiftControlLoop(liftState);
+          setLiftSpeed(liftSpeed);
+        	//runLiftControlLoop(liftState);
         }
-        if(vexRT[Btn5U] == 1){
+
+        /*if(vexRT[Btn5U] == 1){
            	liftState = 1;
         		liftTarget = 90;
         }
         else if (vexRT[Btn5D] == 1){
            	liftState = 0;
-        		liftTarget = 5;
-        }
+        		liftTarget = 10;
+        }*/
+        liftTarget = map(vexRT[Ch2],-128,128,0,100)+10;
 
         //Claw Control
         if(vexRT[Btn6U] == 1){
