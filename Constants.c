@@ -23,13 +23,13 @@ float DIFF_DRIVE_PID_KP = -0.8;//positive means veer left (comp for right shift)
 float DIFF_DRIVE_PID_KI = 0;
 float DIFF_DRIVE_PID_KD = 0;
 
-float DRIVE_FORWARD_PID_KP = 0.6;
-float DRIVE_FORWARD_PID_KI = 0; //probably no I here
+float DRIVE_FORWARD_PID_KP = 0.4;//0.6;
+float DRIVE_FORWARD_PID_KI = 0.00001; //probably no I here
 float DRIVE_FORWARD_PID_KD = 0;
 
-float DRIVE_ROTATION_PID_KP = 0.6;
-float DRIVE_ROTATION_PID_KI = 0; //probably no I here
-float DRIVE_ROTATION_PID_KD = 0;
+float DRIVE_ROTATION_PID_KP = 0.23;
+float DRIVE_ROTATION_PID_KI = 0.0001; //probably no I here
+float DRIVE_ROTATION_PID_KD = 0;//10;
 
 float LIFT_PID_KP = 1.2;//((2000-366)/100)* 0.1;//error is usuallt around 1500 -> 30 default speed
 float LIFT_PID_KI = 0.000035;//0.00001;//((2000-366)/100)* 0.0002; //1500 error ticks accumulated per sec -> +7.5 speed after 1 seconds
@@ -39,20 +39,20 @@ float OP_LIFT_PID_KP = 0.1;
 float OP_LIFT_PID_KI = 0.0002;
 float OP_LIFT_PID_KD = 0;
 
-float CLAW_PID_KP = 1.5;//0.1;
+float CLAW_PID_KP = 2.5;//2;//1.5;//0.1;
 float CLAW_PID_KI = 0;//0.1;
 float CLAW_PID_KD = 0;//0.5;
 
 float CLAW_PID_CONTROL_POS_THRESH = 20; //if above this, use pid
 
 float DRIVE_FORWARD_ERROR_THRESH = 20;//50 //about 5cm
-float DRIVE_ROTATION_ERROR_THRESH = 50;//50 //5 degrees, might be too small
-float CLAW_ERROR_THRESH = 20;//100 // in potentiometer ticks
+float DRIVE_ROTATION_ERROR_THRESH = 100;//50 //5 degrees, might be too small
+float CLAW_ERROR_THRESH = 30;//100 // in potentiometer ticks
 float LIFT_ERROR_THRESH = 30; //50 in potentiometer ticks
 
 int AUTON_LOOP_DELAY = 30;
-int AUTON_DRIVE_MAX_SPEED = 110;
-int AUTON_WAYPOINT_NOERROR_TICKS = 50; //how long the waypoint must be with no error before proceeding to next wp
+int AUTON_DRIVE_MAX_SPEED = 90;
+int AUTON_WAYPOINT_NOERROR_TICKS = 10;////50; //how long the waypoint must be with no error before proceeding to next wp
 
 //60 cm is 647 651 677 675 avg 663
 //1 meter is 1104 ticks

@@ -10,7 +10,7 @@ void initializeSensors() {
   SensorValue[DRIVE_LEFT_FRONT_QUAD] = 0;
   SensorValue[DRIVE_RIGHT_FRONT_QUAD] = 0;
   SensorValue[DRIVE_GYRO] = 0;
-  wait1Msec(1000);
+  wait1Msec(500);
 }
 
 

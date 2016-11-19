@@ -13,7 +13,7 @@ typedef struct {
 } waypoint;
 
 
-waypoint waypointsList[25];
+waypoint waypointsList[12];
 int NUM_WAYPOINTS = 10;
 
 PIDObject diffDrivePID;
@@ -42,7 +42,7 @@ void updateDiffDrivePID(int leftSpeed, int rightSpeed) {
     float dT = AUTON_LOOP_DELAY;
 
     float frontLeftTicksRemaining = - -SensorValue[DRIVE_LEFT_FRONT_QUAD];
-    float backLeftTicksRemaining = - SensorValue[DRIVE_LEFT_BACK_QUAD];
+    float backLeftTicksRemaining = - -SensorValue[DRIVE_LEFT_FRONT_QUAD];//this encoder is not reporting correctly - SensorValue[DRIVE_LEFT_BACK_QUAD];
     float leftAvgTicksRemaining = (frontLeftTicksRemaining + backLeftTicksRemaining)/2;
 
     float frontRightTicksRemaining =  - SensorValue[DRIVE_RIGHT_FRONT_QUAD];
@@ -110,8 +110,8 @@ void runWaypoint(waypoint * wp) {
 		isComplete = true;
 
 		//make sure these errors are in the right direction!!!
-		float driveForwardsErrorL = (wp->forwardTicks) -  SensorValue[DRIVE_LEFT_BACK_QUAD];
-		float driveForwardsErrorR = (wp->forwardTicks) - -SensorValue[DRIVE_RIGHT_BACK_QUAD];
+		float driveForwardsErrorL = (wp->forwardTicks) -  -SensorValue[DRIVE_LEFT_FRONT_QUAD];
+		float driveForwardsErrorR = (wp->forwardTicks) - SensorValue[DRIVE_RIGHT_FRONT_QUAD];
 		float driveForwardsError = (driveForwardsErrorL+driveForwardsErrorR)/2;
 		float rotationError = (wp->rotationAngle) - SensorValue[DRIVE_GYRO];
 		float liftError = (wp->liftPosition)-map(SensorValue[LIFT_POTENTIOMETER],LIFT_POT_VALUE_MIN,LIFT_POT_VALUE_MAX,0,100);
@@ -124,13 +124,13 @@ void runWaypoint(waypoint * wp) {
 		datalogAddValue(3,clawError);
     datalogAddValue(4,diffDrivePID.error);
 
-    //datalogAddValue(5,drivePID.derivative);
-    //datalogAddValue(6,rotationPID.derivative);
+    datalogAddValue(5,drivePID.derivative);
+    datalogAddValue(6,rotationPID.derivative);
     //datalogAddValue(7,liftPID.derivative);
-    //datalogAddValue(8,diffDrivePID.derivative);
+    datalogAddValue(7,diffDrivePID.derivative);
 
 		//Move forwards or backwards until error is below threshold
-		if(!driveComplete && (fabs(driveForwardsErrorL) > DRIVE_FORWARD_ERROR_THRESH || fabs(driveForwardsErrorR) > DRIVE_FORWARD_ERROR_THRESH)) {
+		if(!driveComplete && (fabs(driveForwardsErrorL) > DRIVE_FORWARD_ERROR_THRESH /*|| fabs(driveForwardsErrorR) > DRIVE_FORWARD_ERROR_THRESH*/)) {
 			isComplete = false;
 			float speed = updateDrivePID(driveForwardsError);
 			speed = speedMax(speed,AUTON_DRIVE_MAX_SPEED);
@@ -139,7 +139,7 @@ void runWaypoint(waypoint * wp) {
       updateDiffDrivePID(speed,speed);
 		}
 		//Rotate left or right until the error is below threshold
-		else if(fabs(rotationError) > DRIVE_ROTATION_ERROR_THRESH) {
+		else if(wp->rotationAngle != 0 && fabs(rotationError) > DRIVE_ROTATION_ERROR_THRESH) {
 			driveComplete = true;
 			isComplete = false;
 			float speed = updateRotationPID(rotationError);
@@ -147,16 +147,16 @@ void runWaypoint(waypoint * wp) {
       //datalogAddValue(10,(int)speed);
       updateDiffDrivePID(speed,-speed);
 		}
-		else {driveComplete = true};
+		else {driveComplete = true;};
 
-		//float liftSpeed = updateLiftPID(liftError);
-		//setLiftSpeed(liftSpeed);
-		//runLiftControlLoop(wp->liftPosition);
-    if(wp->liftPosition>50) {
+		float liftSpeed = updateLiftPID(liftError);
+		setLiftSpeed(liftSpeed);
+		runLiftControlLoop(wp->liftPosition);
+    /*if(wp->liftPosition>50) {
     	runLiftControlLoop(1);}
     else {
     	runLiftControlLoop(0);
-    }
+    }*/
 
 		//datalogAddValue(11,(int)liftSpeed)
     if(fabs(liftError) > LIFT_ERROR_THRESH) {
@@ -219,32 +219,47 @@ void initializeWaypointArray() {
 	}
 
   //TODO: can create and reuuse waypoints that do specific things by making a function that sets them to that
-  waypointsList[0].liftPosition = 90;
+  //reminder: for cllaw switch to state
+	waypointsList[0].liftPosition = 90;
   waypointsList[0].clawPosition = 0;
+	/waypointsList[0].waitTime = 2000;
 
-	//for(int i =1; i< 5; i+=5) {
-  //First Cube
- 		i=1;
-  	waypointsList[1].liftPosition = 10;
-  	waypointsList[1].clawPosition = 10;
-  	//waypointsList[1].waitTime = 3000;//3000;
+	waypointsList[1].liftPosition = 10;
+	waypointsList[1].waitTime = 10000;
+	//waypointsList[1].clawPosition = 60;
 
+	/*waypointsList[1].liftPosition = 90;
+	waypointsList[1].clawPosition = 60;
+	waypointsList[1].forwardTicks = 750;*
+	waypointsList[1].waitTime = 10000;
+		/*int dir = -1;
 
-		waypointsList[2].clawPosition = 10;
-  	waypointsList[2].liftPosition=10;
-  	waypointsList[2].forwardTicks = 500;
-  	waypointsList[2].waitTime = 1000;
+		waypointsList[1].clawPosition = 0;
+  	waypointsList[1].liftPosition=10;
+  	waypointsList[1].forwardTicks = 500;
+  	//waypointsList[1].waitTime = 3000;
 
-  	waypointsList[3].liftPosition = 10;
+  	waypointsList[2].liftPosition = 10;
+  	waypointsList[2].clawPosition = 60;
+  	waypointsList[2].rotationAngle = dir*900;
+
+  	waypointsList[3].forwardTicks = 500;
   	waypointsList[3].clawPosition = 60;
-  	waypointsList[3].rotationAngle = 900;
-  	//waypointsList[3].waitTime = 1000;
 
-  	waypointsList[4].forwardTicks = 100;
   	waypointsList[4].clawPosition = 10;
 
+  	waypointsList[5].clawPosition = 10;
   	waypointsList[5].liftPosition = 90;
- 		waypointsList[5].rotationAngle = -900;
+ 		waypointsList[5].rotationAngle = dir*-900;
+
+ 		waypointsList[6].clawPosition = 10;
+ 		waypointsList[6].liftPosition = 90;
+ 		waypointsList[6].forwardTicks = 600;
+
+ 		waypointsList[7].liftPosition = 90;
+ 		waypointsList[7].clawPosition = 60;
+ 		waypointsList[7].waitTime = 10000;*/
+
 
 //}
 
@@ -312,10 +327,10 @@ void runOpcontrolLoop() {
         }
 
         //Drive Control
-        int frontRightMotorSpeed =  -((vexRT[Ch3] - vexRT[Ch4]) - vexRT[Ch1]);
-        int backRightMotorSpeed = -((vexRT[Ch3] - vexRT[Ch4]) + vexRT[Ch1]);
-        int frontLeftMotorSpeed = ((vexRT[Ch3] + vexRT[Ch4]) + vexRT[Ch1]);
-        int backLeftMotorSpeed = ((vexRT[Ch3] + vexRT[Ch4]) - vexRT[Ch1]);
+        int frontRightMotorSpeed = (int) (0.7* -((vexRT[Ch3] - vexRT[Ch4]) - vexRT[Ch1]));
+        int backRightMotorSpeed = (int) (0.7*-((vexRT[Ch3] - vexRT[Ch4]) + vexRT[Ch1]));
+        int frontLeftMotorSpeed = (int) (0.7*((vexRT[Ch3] + vexRT[Ch4]) + vexRT[Ch1]));
+        int backLeftMotorSpeed = (int)(0.7*((vexRT[Ch3] + vexRT[Ch4]) - vexRT[Ch1]));
 
          motor[DRIVE_RIGHT_FRONT_MOTOR] = frontRightMotorSpeed;
          motor[DRIVE_RIGHT_BACK_MOTOR] = backRightMotorSpeed;
